@@ -42,7 +42,9 @@ INSTALLED_APPS = [
     #third-party
 
     #local-apps
-    'account'
+    'account',
+    'product',
+    'core',
 ]
 
 MIDDLEWARE = [

@@ -9,6 +9,6 @@ class ProductImages(BaseModel):
     )
 
     product_image = models.ImageField(
-        upload_to='media/product/'
+        upload_to='media/product/',
         blank=True,
     )
