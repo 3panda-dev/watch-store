@@ -15,8 +15,7 @@ class CreateUserApiView(APIView):
         serializer = UserCreationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        login(request, user)
-
+        
         refresh = CustomTokenObtainPairSerializer.get_token(user)
         return Response(
             {'message': 'user created',
