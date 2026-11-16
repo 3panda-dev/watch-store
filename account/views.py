@@ -5,11 +5,13 @@ from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
+from core.custom_throttle import LoginRateThrottle, RegisterRateThrottle
 
 from .serializers import *
 
 
 class RegisterApiView(APIView):
+    throttle_classes = [RegisterRateThrottle]
     permission_classes = [AllowAny]
     
     def post(self, request):
@@ -29,6 +31,7 @@ class RegisterApiView(APIView):
         )
 
 class LoginApiView(TokenObtainPairView):
+    throttle_classes = [LoginRateThrottle]
     serializer_class = CustomTokenObtainPairSerializer
 
 
