@@ -2,13 +2,14 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import AllowAny
-from django.contrib.auth import login, logout
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .serializers import *
 
 
-class CreateUserApiView(APIView):
+class RegisterApiView(APIView):
     permission_classes = [AllowAny]
     
     def post(self, request):
@@ -17,6 +18,7 @@ class CreateUserApiView(APIView):
         user = serializer.save()
         
         refresh = CustomTokenObtainPairSerializer.get_token(user)
+
         return Response(
             {'message': 'user created',
              'refresh': str(refresh),
@@ -25,6 +27,26 @@ class CreateUserApiView(APIView):
 
             status=status.HTTP_201_CREATED
         )
+
+class LoginApiView(TokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer
+
+
+class logoutApiView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(request):
+        refresh_token = request.data.get('refresh')
+        token = RefreshToken(refresh_token)
+        token.blacklist
+
+        return Response(
+            {'message': 'logout is succses'},
+            status=status.HTTP_205_RESET_CONTENT
+        )
+        
+
+
 
 
 
