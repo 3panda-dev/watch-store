@@ -1,6 +1,7 @@
 from .models import *
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from django.contrib.auth.password_validation import validate_password
 
 
 class UserCreationSerializer(serializers.ModelSerializer):
@@ -11,6 +12,7 @@ class UserCreationSerializer(serializers.ModelSerializer):
         fields = ['phone', 'email', 'password']
 
     def create(self, validated_data):
+        validate_password(validated_data['password'])
         return User.objects.create_user(**validated_data)
 
 
