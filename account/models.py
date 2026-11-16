@@ -6,6 +6,7 @@ from django.contrib.auth.models import(
 )
 
 
+
 class UserManager(BaseUserManager):
     def create_user(self, phone , email, password=None, **extra_fields):
         #make sure phone number , password and email is valid
@@ -39,7 +40,7 @@ class UserManager(BaseUserManager):
 
 
 
-class User(AbstractBaseUser):
+class User(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
     phone = models.CharField(unique=True, max_length=11)
     is_active = models.BooleanField(default=True)
