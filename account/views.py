@@ -41,13 +41,13 @@ class logoutApiView(APIView):
     def post(request):
         refresh_token = request.data.get('refresh')
         token = RefreshToken(refresh_token)
-        token.blacklist
+        token.blacklist()
 
         return Response(
-            {'message': 'logout is succses'},
+            {'message': 'logout is successful'},
             status=status.HTTP_205_RESET_CONTENT
         )
-        
+
 
 
 
