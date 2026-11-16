@@ -7,6 +7,7 @@ from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from core.custom_throttle import LoginRateThrottle, RegisterRateThrottle
 from rest_framework_simplejwt.exceptions import TokenError
+from drf_spectacular.utils import extend_schema
 
 from .serializers import *
 
@@ -14,6 +15,12 @@ from .serializers import *
 class RegisterApiView(APIView):
     throttle_classes = [RegisterRateThrottle]
     permission_classes = [AllowAny]
+
+    @extend_schema(
+        request=UserCreationSerializer,
+        responses={201: UserCreationSerializer}
+    )
+
     
     def post(self, request):
         serializer = UserCreationSerializer(data=request.data)
@@ -51,19 +58,19 @@ class LogoutApiView(APIView):
 
             token = RefreshToken(refresh_token)
 
-            if token.payload.get('user_id') != request.user.id:
+            if token.payload.get('phone') != request.user.phone:
                 return Response(
                     {'message': 'Invalid refresh token for the current user'},
                     status=status.HTTP_400_BAD_REQUEST
                 )
             
-            token.blacklist()
-
         except TokenError as e:
             return Response(
                 {'message': 'Invalid refresh token'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        
+        token.blacklist()
 
         return Response(
             {'message': 'logout is successful'},
