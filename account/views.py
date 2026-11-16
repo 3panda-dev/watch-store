@@ -6,6 +6,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework_simplejwt.tokens import RefreshToken
 from core.custom_throttle import LoginRateThrottle, RegisterRateThrottle
+from rest_framework_simplejwt.exceptions import TokenError
 
 from .serializers import *
 
@@ -18,7 +19,6 @@ class RegisterApiView(APIView):
         serializer = UserCreationSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
-        
         refresh = CustomTokenObtainPairSerializer.get_token(user)
 
         return Response(
@@ -35,13 +35,35 @@ class LoginApiView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
 
 
-class logoutApiView(APIView):
+class LogoutApiView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def post(request):
-        refresh_token = request.data.get('refresh')
-        token = RefreshToken(refresh_token)
-        token.blacklist()
+    def post(self, request):
+
+        try:
+            refresh_token = request.data.get('refresh')
+
+            if refresh_token is None or refresh_token.strip() == '':
+                return Response(
+                    {'message': 'Refresh token is required'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            token = RefreshToken(refresh_token)
+
+            if token.payload.get('user_id') != request.user.id:
+                return Response(
+                    {'message': 'Invalid refresh token for the current user'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            token.blacklist()
+
+        except TokenError as e:
+            return Response(
+                {'message': 'Invalid refresh token'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         return Response(
             {'message': 'logout is successful'},
